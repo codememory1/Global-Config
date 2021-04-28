@@ -1,0 +1,29 @@
+#!/usr/bin/env php
+<?php
+
+use Codememory\Components\GlobalConfig\Commands\MergeConfigCommand;
+use Symfony\Component\Console\Application;
+use Codememory\Components\GlobalConfig\Commands\InitConfigCommand;
+
+define("ROOT", $_SERVER['PWD']);
+
+function includeIfExist(string $file): bool
+{
+    return file_exists($file) && include $file;
+}
+
+if (
+    !includeIfExist(__DIR__ . '/../../../../vendor/autoload.php') &&
+    !includeIfExist(__DIR__ . '/../../vendor/autoload.php') &&
+    !includeIfExist(__DIR__ . '/../vendor/autoload.php')
+) {
+    fwrite(STDERR, 'Install dependencies using Composer.'.PHP_EOL);
+    exit(1);
+}
+
+
+$app = new Application();
+$app->add(new InitConfigCommand());
+$app->add(new MergeConfigCommand());
+
+$app->run();

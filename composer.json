@@ -1,0 +1,30 @@
+{
+    "name": "codememory/global-config",
+    "license": "MIT",
+    "description": "",
+    "authors": [
+        {
+            "name": "Danil",
+            "email": "kostynd1@gmail.com"
+        }
+    ],
+    "require": {
+        "symfony/yaml": "^5.2",
+        "codememory/fs": "^1.4",
+        "codememory/support": "^1.3",
+        "codememory/markup": "^1.1",
+        "codememory/console": "^2.0",
+        "symfony/console": "^5.2"
+    },
+    "autoload": {
+        "psr-4": {
+            "Codememory\\Components\\GlobalConfig\\": ""
+        }
+    },
+    "require-dev": {
+        "symfony/var-dumper": "^5.2"
+    },
+    "bin": [
+        "bin/gc-cdm"
+    ]
+}
