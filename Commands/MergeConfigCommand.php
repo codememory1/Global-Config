@@ -26,6 +26,8 @@ class MergeConfigCommand extends Command
         'vendor/codememory/environment/',
         'vendor/codememory/caching/',
         'vendor/codememory/routing/',
+        'vendor/codememory/big/',
+        'vendor/codememory/service-provider/'
     ];
 
     /**
