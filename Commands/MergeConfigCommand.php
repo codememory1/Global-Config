@@ -3,11 +3,16 @@
 namespace Codememory\Components\GlobalConfig\Commands;
 
 use Codememory\Components\Console\Command;
+use Codememory\Components\Console\Exceptions\NotCommandException;
+use Codememory\Components\Console\ResourcesCommand;
+use Codememory\Components\Console\Running;
 use Codememory\Components\GlobalConfig\GlobalConfig;
 use Codememory\FileSystem\File;
 use Codememory\FileSystem\Interfaces\FileInterface;
 use Codememory\Support\Str;
+use Exception;
 use LogicException;
+use ReflectionException;
 use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
@@ -21,14 +26,8 @@ use Symfony\Component\Console\Output\OutputInterface;
 class MergeConfigCommand extends Command
 {
 
-    private const PATH_WITH_CONFIGS = [
-        'vendor/codememory/config/',
-        'vendor/codememory/environment/',
-        'vendor/codememory/caching/',
-        'vendor/codememory/routing/',
-        'vendor/codememory/big/',
-        'vendor/codememory/service-provider/'
-    ];
+    private const DEFAULT_TYPE_BACKUP = 'before';
+    private const PATH_WITH_PACKAGES = 'vendor/codememory/';
 
     /**
      * @var string|null
@@ -48,7 +47,8 @@ class MergeConfigCommand extends Command
 
         $this
             ->option('configPath', null, InputOption::VALUE_REQUIRED, 'The path in which there is a .config folder that will be combined with the main configuration in the project')
-            ->option('all', null, InputOption::VALUE_NONE, 'Merge all component configurations into one master');
+            ->option('all', null, InputOption::VALUE_NONE, 'Merge all component configurations into one master')
+            ->option('backup', null, InputOption::VALUE_REQUIRED, 'Back up configuration after or before merge', self::DEFAULT_TYPE_BACKUP);
 
         return $this;
 
@@ -56,14 +56,20 @@ class MergeConfigCommand extends Command
 
     /**
      * @inheritDoc
+     * @throws NotCommandException
+     * @throws ReflectionException
      */
     protected function handler(InputInterface $input, OutputInterface $output): int
     {
 
         $filesystem = new File();
 
-        if(null === $input->getOption('configPath') && !$input->getOption('all')) {
+        if (null === $input->getOption('configPath') && !$input->getOption('all')) {
             throw new LogicException("At least one of these options must be specified \n--configPath = <path>\n--all");
+        }
+
+        if ('before' === $input->getOption('backup')) {
+            $this->executeBackup();
         }
 
         if (null !== $input->getOption('configPath')) {
@@ -71,14 +77,20 @@ class MergeConfigCommand extends Command
         }
 
         if ($input->getOption('all')) {
-            foreach (self::PATH_WITH_CONFIGS as $pathWithConfigs) {
-                if ($filesystem->exist($pathWithConfigs)) {
-                    $this->merge($filesystem, $pathWithConfigs);
+            foreach ($this->getAllPathPackages($filesystem) as $pathWithConfigs) {
+                $pathToPackage = sprintf('%s%s/', self::PATH_WITH_PACKAGES, $pathWithConfigs);
+
+                if ($filesystem->exist($pathToPackage . GlobalConfig::PATH)) {
+                    $this->merge($filesystem, $pathToPackage);
                 }
             }
         }
 
         $this->io->success('A successful merge has been made to the global config');
+
+        if ('after' === $input->getOption('backup')) {
+            $this->executeBackup();
+        }
 
         return Command::SUCCESS;
 
@@ -113,5 +125,39 @@ class MergeConfigCommand extends Command
         GlobalConfig::getYamlMarkup()->open($pathWithoutExpansion)->write($mainConfig);
 
     }
+
+    /**
+     * @throws NotCommandException
+     * @throws ReflectionException
+     * @throws Exception
+     */
+    private function executeBackup(): void
+    {
+
+        $run = new Running();
+        $runBackup = $run
+            ->addCommands([new BackupCommand()])
+            ->addCommand(function (ResourcesCommand $resourcesCommand) {
+                $resourcesCommand->commandToExecute('g-config:backup');
+            })
+            ->run();
+        $response = str_replace(['[OK]', "\n"], '', trim($runBackup->getResponse()));
+
+        $this->io->block($response, 'OK', 'fg=black;bg=green', ' ', true);
+
+    }
+
+    /**
+     * @param FileInterface $filesystem
+     *
+     * @return array
+     */
+    private function getAllPathPackages(FileInterface $filesystem): array
+    {
+
+        return $filesystem->scanning(self::PATH_WITH_PACKAGES);
+
+    }
+
 
 }

@@ -22,6 +22,7 @@ class GlobalConfig implements GlobalConfigInterface
 
     public const PATH = '.config/';
     public const FILENAME = '.codememory.yaml';
+    public const BACKUP_FILENAME = 'codememory.backup';
 
     /**
      * @var FileInterface|null
