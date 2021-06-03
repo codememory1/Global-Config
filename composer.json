@@ -11,10 +11,10 @@
     "require": {
         "symfony/yaml": "^5.2",
         "symfony/console": "^5.2",
-        "codememory/fs": "^1.0",
-        "codememory/support": "^1.0",
-        "codememory/markup": "^1.0",
-        "codememory/console": "^1.0"
+        "codememory/fs": "1.1.2",
+        "codememory/support": "1.2.1",
+        "codememory/markup": "1.0.1",
+        "codememory/console": "1.0.3"
     },
     "autoload": {
         "psr-4": {
