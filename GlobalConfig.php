@@ -56,6 +56,7 @@ class GlobalConfig implements GlobalConfigInterface
 
         if (self::exist()) {
             $data = self::getYamlMarkup()->open($path)->get();
+            self::getYamlMarkup()->close();
         }
 
         return $data;

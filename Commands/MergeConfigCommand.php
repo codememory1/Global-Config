@@ -9,6 +9,7 @@ use Codememory\Components\Console\Running;
 use Codememory\Components\GlobalConfig\GlobalConfig;
 use Codememory\FileSystem\File;
 use Codememory\FileSystem\Interfaces\FileInterface;
+use Codememory\Support\Arr;
 use Codememory\Support\Str;
 use Exception;
 use LogicException;
@@ -120,7 +121,16 @@ class MergeConfigCommand extends Command
         }
 
         $mainConfig = GlobalConfig::getAll();
-        $mainConfig = array_merge_recursive($mainConfig, $additionalConfig);
+        $mainConfigToDot = Arr::dot($mainConfig);
+        $additionalConfigToDot = Arr::dot($additionalConfig);
+
+        foreach ($additionalConfigToDot as $key => $value) {
+            if(!array_key_exists($key, $mainConfigToDot)) {
+                $key = Str::trimAfterSymbol($key, '.', true);
+
+                $mainConfig[$key] = $additionalConfig[$key];
+            }
+        }
 
         GlobalConfig::getYamlMarkup()->open($pathWithoutExpansion)->write($mainConfig);
 
