@@ -42,7 +42,7 @@ class InitFromBackupCommand extends Command
         if ($filesystem->exist($backupPath)) {
             $backupData = json_decode(file_get_contents($filesystem->getRealPath($backupPath)), true);
 
-            GlobalConfig::getMarkupType()->open(Str::trimAfterSymbol($globalConfigPath, '.yaml'))->write($backupData);
+            GlobalConfig::getMarkupType()->open(Str::trimAfterSymbol($globalConfigPath, GlobalConfig::EXTENSION))->write($backupData);
 
             $this->io->success('Global configuration successfully initialized from backup');
 
