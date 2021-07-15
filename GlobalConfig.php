@@ -21,8 +21,9 @@ use Codememory\Support\Str;
 class GlobalConfig implements GlobalConfigInterface
 {
 
+    public const EXTENSION = '.json';
     public const PATH = '.config/';
-    public const FILENAME = '.codememory.json';
+    public const FILENAME = '.codememory'.self::EXTENSION;
     public const BACKUP_FILENAME = 'codememory.backup';
 
     /**
@@ -52,7 +53,7 @@ class GlobalConfig implements GlobalConfigInterface
     {
 
         $gluedPathFile = self::PATH . self::FILENAME;
-        $path = Str::cut($gluedPathFile, mb_stripos($gluedPathFile, '.yaml'));
+        $path = Str::cut($gluedPathFile, mb_stripos($gluedPathFile, self::EXTENSION));
         $data = [];
 
         if (self::exist()) {

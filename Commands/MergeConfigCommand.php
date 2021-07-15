@@ -6,7 +6,11 @@ use Codememory\Components\Console\Command;
 use Codememory\Components\Console\Exceptions\NotCommandException;
 use Codememory\Components\Console\ResourcesCommand;
 use Codememory\Components\Console\Running;
+use Codememory\Components\Finder\Find;
 use Codememory\Components\GlobalConfig\GlobalConfig;
+use Codememory\Components\Markup\Markup;
+use Codememory\Components\Markup\Types\JsonType;
+use Codememory\Components\Markup\Types\YamlType;
 use Codememory\FileSystem\File;
 use Codememory\FileSystem\Interfaces\FileInterface;
 use Codememory\Support\Arr;
@@ -20,6 +24,7 @@ use Symfony\Component\Console\Output\OutputInterface;
 
 /**
  * Class MergeConfigCommand
+ *
  * @package Codememory\Components\GlobalConfig\Commands
  *
  * @author  Codememory
@@ -74,7 +79,7 @@ class MergeConfigCommand extends Command
         }
 
         if (null !== $input->getOption('configPath')) {
-            $this->merge($filesystem, $input->getOption('configPath'));
+            $this->merge($input->getOption('configPath'));
         }
 
         if ($input->getOption('all')) {
@@ -82,7 +87,7 @@ class MergeConfigCommand extends Command
                 $pathToPackage = sprintf('%s%s/', self::PATH_WITH_PACKAGES, $pathWithConfigs);
 
                 if ($filesystem->exist($pathToPackage . GlobalConfig::PATH)) {
-                    $this->merge($filesystem, $pathToPackage);
+                    $this->merge($pathToPackage);
                 }
             }
         }
@@ -98,26 +103,28 @@ class MergeConfigCommand extends Command
     }
 
     /**
-     * @param FileInterface $filesystem
-     * @param string        $configPath
+     * @param string $configPath
      */
-    private function merge(FileInterface $filesystem, string $configPath): void
+    private function merge(string $configPath): void
     {
 
+        $finder = new Find();
         $mainPath = GlobalConfig::PATH . GlobalConfig::FILENAME;
-        $pathWithoutExpansion = Str::cut($mainPath, mb_stripos($mainPath, '.yaml'));
-        $pathAdditionalConfig = sprintf(
-            '%s/%s%s',
+        $pathWithoutExpansion = Str::cut($mainPath, mb_stripos($mainPath, GlobalConfig::EXTENSION));
+        $configs = $finder->setPathForFind(sprintf(
+            '%s/%s',
             trim($configPath, '/'),
-            GlobalConfig::PATH,
-            GlobalConfig::FILENAME
-        );
-        $pathAdditionalConfigWithoutExpansion = Str::cut($pathAdditionalConfig, mb_stripos($pathAdditionalConfig, '.yaml'));
-
+            GlobalConfig::PATH
+        ))->file()->byRegex('.codememory.[a-z]+$')->get();
         $additionalConfig = [];
 
-        if ($filesystem->exist($pathAdditionalConfig)) {
-            $additionalConfig = GlobalConfig::getMarkupType()->open($pathAdditionalConfigWithoutExpansion)->get();
+        foreach ($configs as $config) {
+            $extension = Str::trimToSymbol($config, '.', false);
+            $dataConfig = $this->getDataConfigByExtension($extension, $config);
+
+            if (false !== $dataConfig) {
+                $additionalConfig += $dataConfig;
+            }
         }
 
         $mainConfig = GlobalConfig::getAll();
@@ -125,7 +132,7 @@ class MergeConfigCommand extends Command
         $additionalConfigToDot = Arr::dot($additionalConfig);
 
         foreach ($additionalConfigToDot as $key => $value) {
-            if(!array_key_exists($key, $mainConfigToDot)) {
+            if (!array_key_exists($key, $mainConfigToDot)) {
                 $key = Str::trimAfterSymbol($key, '.', true);
 
                 $mainConfig[$key] = $additionalConfig[$key];
@@ -133,6 +140,35 @@ class MergeConfigCommand extends Command
         }
 
         GlobalConfig::getMarkupType()->open($pathWithoutExpansion)->write($mainConfig);
+
+    }
+
+    /**
+     * @param string $extension
+     * @param string $config
+     *
+     * @return bool|array
+     */
+    private function getDataConfigByExtension(string $extension, string $config): bool|array
+    {
+
+        $config = Str::trimAfterSymbol($config, '.', false);
+
+        switch ($extension) {
+            case 'yaml':
+                $markup = new Markup(new YamlType());
+                $data = $markup->open($config)->get();
+                break;
+            case 'json':
+                $markup = new Markup(new JsonType());
+                $data = $markup->open($config)->get();
+                break;
+            default:
+                $data = false;
+                break;
+        }
+
+        return $data;
 
     }
 
