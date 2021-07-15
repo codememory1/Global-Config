@@ -5,7 +5,7 @@ namespace Codememory\Components\GlobalConfig;
 use Codememory\Components\GlobalConfig\Interfaces\GlobalConfigInterface;
 use Codememory\Components\Markup\Interfaces\MarkupInterface;
 use Codememory\Components\Markup\Markup;
-use Codememory\Components\Markup\Types\YamlType;
+use Codememory\Components\Markup\Types\JsonType;
 use Codememory\FileSystem\File;
 use Codememory\FileSystem\Interfaces\FileInterface;
 use Codememory\Support\Arr;
@@ -13,6 +13,7 @@ use Codememory\Support\Str;
 
 /**
  * Class GlobalConfig
+ *
  * @package Codememory\Components\GloablConfig
  *
  * @author  Codememory
@@ -21,7 +22,7 @@ class GlobalConfig implements GlobalConfigInterface
 {
 
     public const PATH = '.config/';
-    public const FILENAME = '.codememory.yaml';
+    public const FILENAME = '.codememory.json';
     public const BACKUP_FILENAME = 'codememory.backup';
 
     /**
@@ -55,8 +56,8 @@ class GlobalConfig implements GlobalConfigInterface
         $data = [];
 
         if (self::exist()) {
-            $data = self::getYamlMarkup()->open($path)->get();
-            self::getYamlMarkup()->close();
+            $data = self::getMarkupType()->open($path)->get();
+            self::getMarkupType()->close();
         }
 
         return $data;
@@ -90,11 +91,11 @@ class GlobalConfig implements GlobalConfigInterface
     /**
      * @return MarkupInterface
      */
-    public static function getYamlMarkup(): MarkupInterface
+    public static function getMarkupType(): MarkupInterface
     {
 
         if (!self::$markup instanceof Markup) {
-            self::$markup = new Markup(new YamlType());
+            self::$markup = new Markup(new JsonType());
         }
 
         return self::$markup;

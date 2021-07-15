@@ -117,7 +117,7 @@ class MergeConfigCommand extends Command
         $additionalConfig = [];
 
         if ($filesystem->exist($pathAdditionalConfig)) {
-            $additionalConfig = GlobalConfig::getYamlMarkup()->open($pathAdditionalConfigWithoutExpansion)->get();
+            $additionalConfig = GlobalConfig::getMarkupType()->open($pathAdditionalConfigWithoutExpansion)->get();
         }
 
         $mainConfig = GlobalConfig::getAll();
@@ -132,7 +132,7 @@ class MergeConfigCommand extends Command
             }
         }
 
-        GlobalConfig::getYamlMarkup()->open($pathWithoutExpansion)->write($mainConfig);
+        GlobalConfig::getMarkupType()->open($pathWithoutExpansion)->write($mainConfig);
 
     }
 
