@@ -50,3 +50,31 @@ composer require codememory/global-config
 
 
 * `exist(): bool` Проверить существование файла глобальной конфигурации
+
+
+## Пример использования
+
+```php
+<?php
+// console.php
+
+use Codememory\Components\GlobalConfig\GlobalConfig;
+use Symfony\Component\Console\Application;
+use Codememory\Components\GlobalConfig\Commands\InitConfigCommand;
+
+require_once 'vendor/autoload.php';
+
+GlobalConfig::setPath('.config/')::setFilename('.cdm.json');
+
+$application = new Application();
+
+$application->add(new InitConfigCommand());
+
+$application->run();
+```
+
+```
+$ php console.php g-config:init
+
+Created: .config/.cdm.json
+```
