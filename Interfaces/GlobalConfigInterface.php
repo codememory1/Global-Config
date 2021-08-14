@@ -12,6 +12,47 @@ interface GlobalConfigInterface
 {
 
     /**
+     * @param string $path
+     *
+     * @return GlobalConfigInterface
+     */
+    public static function setPath(string $path): GlobalConfigInterface;
+
+    /**
+     * @param string $filename
+     *
+     * @return GlobalConfigInterface
+     */
+    public static function setFilename(string $filename): GlobalConfigInterface;
+
+    /**
+     * @param string $filename
+     *
+     * @return GlobalConfigInterface
+     */
+    public static function setBackupFilename(string $filename): GlobalConfigInterface;
+
+    /**
+     * @return string
+     */
+    public static function getPath(): string;
+
+    /**
+     * @return string
+     */
+    public static function getFilename(): string;
+
+    /**
+     * @return string
+     */
+    public static function getExtension(): string;
+
+    /**
+     * @return string
+     */
+    public static function getBackupFilename(): string;
+
+    /**
      * @param string $keys
      *
      * @return mixed

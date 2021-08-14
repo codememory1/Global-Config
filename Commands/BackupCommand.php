@@ -37,7 +37,7 @@ class BackupCommand extends Command
 
         if (GlobalConfig::exist()) {
             $dataGlobalConfig = json_encode(GlobalConfig::getAll());
-            $path = sprintf('%s%s', GlobalConfig::PATH, GlobalConfig::BACKUP_FILENAME);
+            $path = sprintf('%s%s', GlobalConfig::getPath(), GlobalConfig::getBackupFilename());
 
             $filesystem->writer->open($path, createFile: true)->put($dataGlobalConfig);
 

@@ -18,13 +18,33 @@ use Codememory\Support\Str;
  *
  * @author  Codememory
  */
-class GlobalConfig implements GlobalConfigInterface
+final class GlobalConfig implements GlobalConfigInterface
 {
 
-    public const EXTENSION = '.json';
-    public const PATH = '.config/';
-    public const FILENAME = '.codememory'.self::EXTENSION;
-    public const BACKUP_FILENAME = 'codememory.backup';
+    private const EXTENSION = '.json';
+    private const PATH = '.config/';
+    private const FILENAME = '.codememory' . self::EXTENSION;
+    private const BACKUP_FILENAME = 'codememory.backup';
+
+    /**
+     * @var string
+     */
+    private static string $path = self::PATH;
+
+    /**
+     * @var string
+     */
+    private static string $filename = self::FILENAME;
+
+    /**
+     * @var string
+     */
+    private static string $extension = self::EXTENSION;
+
+    /**
+     * @var string
+     */
+    private static string $backupFilename = self::BACKUP_FILENAME;
 
     /**
      * @var FileInterface|null
@@ -35,6 +55,83 @@ class GlobalConfig implements GlobalConfigInterface
      * @var MarkupInterface|null
      */
     private static ?MarkupInterface $markup = null;
+
+    /**
+     * @inheritDoc
+     */
+    public static function setPath(string $path): GlobalConfigInterface
+    {
+
+        self::$path = $path;
+
+        return new self();
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function setFilename(string $filename): GlobalConfigInterface
+    {
+
+        self::$filename = $filename;
+        self::$extension = Str::trimToSymbol($filename, '.');
+
+        return new self();
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function setBackupFilename(string $filename): GlobalConfigInterface
+    {
+
+        self::$backupFilename = $filename;
+
+        return new self();
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getPath(): string
+    {
+
+        return self::$path;
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getFilename(): string
+    {
+
+        return self::$filename;
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getExtension(): string
+    {
+
+        return self::$extension;
+
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public static function getBackupFilename(): string
+    {
+
+        return self::$backupFilename;
+
+    }
 
     /**
      * @inheritDoc
@@ -52,7 +149,7 @@ class GlobalConfig implements GlobalConfigInterface
     public static function getAll(): array
     {
 
-        $gluedPathFile = self::PATH . self::FILENAME;
+        $gluedPathFile = self::getPath() . self::getFilename();
         $path = Str::cut($gluedPathFile, mb_stripos($gluedPathFile, self::EXTENSION));
         $data = [];
 
@@ -71,7 +168,7 @@ class GlobalConfig implements GlobalConfigInterface
     public static function exist(): bool
     {
 
-        return self::getFilesystem()->exist(self::PATH . self::FILENAME);
+        return self::getFilesystem()->exist(self::getPath() . self::getFilename());
 
     }
 

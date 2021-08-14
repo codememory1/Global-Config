@@ -36,13 +36,13 @@ class InitFromBackupCommand extends Command
 
         $filesystem = new File();
 
-        $backupPath = sprintf('%s%s', GlobalConfig::PATH, GlobalConfig::BACKUP_FILENAME);
-        $globalConfigPath = sprintf('%s%s', GlobalConfig::PATH, GlobalConfig::FILENAME);
+        $backupPath = sprintf('%s%s', GlobalConfig::getPath(), GlobalConfig::getBackupFilename());
+        $globalConfigPath = sprintf('%s%s', GlobalConfig::getPath(), GlobalConfig::getFilename());
 
         if ($filesystem->exist($backupPath)) {
             $backupData = json_decode(file_get_contents($filesystem->getRealPath($backupPath)), true);
 
-            GlobalConfig::getMarkupType()->open(Str::trimAfterSymbol($globalConfigPath, GlobalConfig::EXTENSION))->write($backupData);
+            GlobalConfig::getMarkupType()->open(Str::trimAfterSymbol($globalConfigPath, GlobalConfig::getExtension()))->write($backupData);
 
             $this->io->success('Global configuration successfully initialized from backup');
 

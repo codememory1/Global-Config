@@ -33,11 +33,11 @@ class InitConfigCommand extends Command
     {
 
         if (!GlobalConfig::exist()) {
-            if (!GlobalConfig::getFilesystem()->exist(GlobalConfig::PATH)) {
-                GlobalConfig::getFilesystem()->mkdir(GlobalConfig::PATH);
+            if (!GlobalConfig::getFilesystem()->exist(GlobalConfig::getPath())) {
+                GlobalConfig::getFilesystem()->mkdir(GlobalConfig::getPath());
             }
 
-            $fullPath = GlobalConfig::PATH . GlobalConfig::FILENAME;
+            $fullPath = GlobalConfig::getPath() . GlobalConfig::getFilename();
 
             GlobalConfig::getFilesystem()->writer->open($fullPath, 'r', true);
 

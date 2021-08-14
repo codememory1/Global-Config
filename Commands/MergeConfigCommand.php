@@ -86,7 +86,7 @@ class MergeConfigCommand extends Command
             foreach ($this->getAllPathPackages($filesystem) as $pathWithConfigs) {
                 $pathToPackage = sprintf('%s%s/', self::PATH_WITH_PACKAGES, $pathWithConfigs);
 
-                if ($filesystem->exist($pathToPackage . GlobalConfig::PATH)) {
+                if ($filesystem->exist($pathToPackage . GlobalConfig::getPath())) {
                     $this->merge($pathToPackage);
                 }
             }
@@ -109,12 +109,12 @@ class MergeConfigCommand extends Command
     {
 
         $finder = new Find();
-        $mainPath = GlobalConfig::PATH . GlobalConfig::FILENAME;
-        $pathWithoutExpansion = Str::cut($mainPath, mb_stripos($mainPath, GlobalConfig::EXTENSION));
+        $mainPath = GlobalConfig::getPath() . GlobalConfig::getFilename();
+        $pathWithoutExpansion = Str::cut($mainPath, mb_stripos($mainPath, GlobalConfig::getExtension()));
         $configs = $finder->setPathForFind(sprintf(
             '%s/%s',
             trim($configPath, '/'),
-            GlobalConfig::PATH
+            GlobalConfig::getPath()
         ))->file()->byRegex('.codememory.[a-z]+$')->get();
         $additionalConfig = [];
 
