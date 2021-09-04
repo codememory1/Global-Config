@@ -139,7 +139,7 @@ class MergeConfigCommand extends Command
             }
         }
 
-        GlobalConfig::getMarkupType()->open($pathWithoutExpansion)->write($mainConfig);
+        GlobalConfig::getMarkupType()->open($pathWithoutExpansion)->setFlags(JSON_PRETTY_PRINT)->write($mainConfig);
 
     }
 

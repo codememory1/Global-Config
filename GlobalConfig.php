@@ -173,6 +173,25 @@ final class GlobalConfig implements GlobalConfigInterface
     }
 
     /**
+     * @inheritDoc
+     */
+    public static function change(callable $callback): GlobalConfigInterface
+    {
+
+        $config = self::getAll();
+
+        $gluedPathFile = self::getPath() . self::getFilename();
+        $path = Str::cut($gluedPathFile, mb_stripos($gluedPathFile, self::EXTENSION));
+
+        call_user_func_array($callback, [&$config]);
+
+        self::getMarkupType()->open($path)->setFlags(JSON_PRETTY_PRINT)->write($config);
+
+        return new self();
+
+    }
+
+    /**
      * @return FileInterface
      */
     public static function getFilesystem(): FileInterface

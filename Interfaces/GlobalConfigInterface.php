@@ -69,4 +69,11 @@ interface GlobalConfigInterface
      */
     public static function exist(): bool;
 
+    /**
+     * @param callable $callback
+     *
+     * @return GlobalConfigInterface
+     */
+    public static function change(callable $callback): GlobalConfigInterface;
+
 }
